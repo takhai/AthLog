@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask + Firebase Auth</title>
+    <!-- Use compat version for better browser support -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <h1>Firebase Auth + Flask Demo</h1>
+    
+    <div id="login-section">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div id="profile-section" style="display:none;">
+        <h2>Welcome, <span id="user-email"></span>!</h2>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        // Complete Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEHALKmZ142V9KX3YMFY4aXQgN99BmNts",
+            authDomain: "monkeytech-a3d51.firebaseapp.com",
+            projectId: "monkeytech-a3d51",
+            appId: "1:98625728441:web:7f4fe77147ddf37ea51068"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase initialized!", firebase.app().name);
+
+        async function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            
+            try {
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                console.log("Logged in:", userCredential.user);
+                
+                // Show profile section
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("profile-section").style.display = "block";
+                document.getElementById("user-email").innerText = email;
+                
+            } catch (error) {
+                alert("Login error: " + error.message);
+                console.error(error);
+            }
+        }
+
+        function logout() {
+            firebase.auth().signOut();
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
