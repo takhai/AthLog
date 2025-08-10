@@ -13,17 +13,6 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")  # Use consistent env var name
 
-# Firebase Frontend Config (for JavaScript SDK)
-# This should be in your frontend code (HTML/JS), not Python
-firebase_config = {
-    "apiKey": "AIzaSyBEHALKmZ142V9KX3YMFY4aXQgN99BmNts",
-    "authDomain": "monkeytech-a3d51.firebaseapp.com",
-    "databaseURL": "https://monkeytech-a3d51.firebaseio.com",
-    "projectId": "monkeytech-a3d51",
-    "storageBucket": "monkeytech-a3d51.firebasestorage.app",
-    "messagingSenderId": "98625728441",
-    "appId": "1:98625728441:web:7f4fe77147ddf37ea51068"
-}
 
 # Initialize Firebase Admin SDK (Backend)
 cred = credentials.Certificate(
