@@ -12,24 +12,26 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Flask app setup
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret_key")  # fallback for local
 CORS(app)  # Enable CORS for all routes
 
-# Initialize Firebase Admin SDK
+# Firebase initialization
 def initialize_firebase():
     try:
         if not firebase_admin._apps:
-            cred = credentials.Certificate(
-                json.loads(
-                    base64.b64decode(
-                        os.getenv("FIREBASE_CREDENTIALS_BASE64")
-                    ).decode('utf-8')
-                )
+            creds_base64 = os.getenv("FIREBASE_CREDENTIALS_BASE64")
+            if not creds_base64:
+                raise ValueError("Missing FIREBASE_CREDENTIALS_BASE64 in environment")
+            cred_dict = json.loads(
+                base64.b64decode(creds_base64).decode("utf-8")
             )
+            cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
+            print("✅ Firebase initialized")
     except Exception as e:
-        print(f"Firebase initialization failed: {str(e)}")
+        print(f"❌ Firebase initialization failed: {str(e)}")
         raise
 
 initialize_firebase()
@@ -40,7 +42,7 @@ def firebase_required(f):
     def wrapper(*args, **kwargs):
         if 'user' not in session:
             return {"error": "Unauthorized"}, 401
-        return f(*args, **kwargs)
+        return f(*args, **kwargs)  # fixed typo
     return wrapper
 
 @app.route("/")
@@ -77,4 +79,6 @@ def logout():
     return jsonify({"status": "success"})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    # Use PORT from env (Render) or 5000 locally
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
