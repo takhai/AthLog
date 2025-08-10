@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, session, redirect, url_for
+import base64
+from flask import Flask, json, request, jsonify, session, redirect, url_for
 import firebase_admin
 from firebase_admin import credentials, auth
 from functools import wraps
@@ -6,11 +7,31 @@ import os
 from dotenv import load_dotenv
 from flask_cors import CORS  # For handling CORS
 
-load_dotenv()  # Load environment variables
-app.secret_key = os.getenv("a12b4c8f3e9d7f6a5b2c8d0e1f3a5b7c9d2e4f6a8b9c0d1e2f3a4b5c6d7e8f9a0")
+# Load environment variables
+load_dotenv()
 
-# Initialize Firebase
-cred = credentials.Certificate("serviceAccountKey.json")
+app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY")  # Use consistent env var name
+
+# Firebase Frontend Config (for JavaScript SDK)
+# This should be in your frontend code (HTML/JS), not Python
+firebase_config = {
+    "apiKey": "AIzaSyBEHALKmZ142V9KX3YMFY4aXQgN99BmNts",
+    "authDomain": "monkeytech-a3d51.firebaseapp.com",
+    "databaseURL": "https://monkeytech-a3d51.firebaseio.com",
+    "projectId": "monkeytech-a3d51",
+    "storageBucket": "monkeytech-a3d51.firebasestorage.app",
+    "messagingSenderId": "98625728441",
+    "appId": "1:98625728441:web:7f4fe77147ddf37ea51068"
+}
+
+# Initialize Firebase Admin SDK (Backend)
+cred = credentials.Certificate(
+    json.loads(base64.b64decode(
+        os.getenv("FIREBASE_CREDENTIALS_BASE64")
+    ).decode()
+)
+
 firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
@@ -57,4 +78,4 @@ def logout():
     return jsonify({"status": "success"})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000))
